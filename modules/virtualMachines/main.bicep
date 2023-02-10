@@ -31,13 +31,7 @@ param vmSize string = 'Standard_B1ms'
 
 param osDiskType string = 'Standard_LRS'
 
-@description('The Ubuntu version for the VM. This will pick a fully patched image of this given Ubuntu version.')
-@allowed([
-  '18.04-LTS'
-  '20.04-LTS'
-  '22.04-LTS'
-])
-param UbuntuOSVersion string = '18.04-LTS'
+param customData string = ''
 
 var linuxConfiguration = {
   disablePasswordAuthentication: true
@@ -91,8 +85,8 @@ resource vm 'Microsoft.Compute/virtualMachines@2022-11-01' = {
       }
       imageReference: {
         publisher: 'Canonical'
-        offer: 'UbuntuServer'
-        sku: UbuntuOSVersion
+        offer: '0001-com-ubuntu-server-focal'
+        sku: '20_04-lts-gen2'
         version: 'latest'
       }
     }
@@ -108,7 +102,7 @@ resource vm 'Microsoft.Compute/virtualMachines@2022-11-01' = {
       adminPassword: adminPasswordOrKey
       adminUsername: adminUsername
       linuxConfiguration: ((authenticationType == 'password') ? null : linuxConfiguration)
-      customData: loadFileAsBase64('../../cloud-init-ado.yml')
+      customData: !empty(customData) ? customData : null // loadFileAsBase64('../../cloud-init-ado.yml')
     }
   }
 }

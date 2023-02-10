@@ -1,0 +1,33 @@
+#cloud-config
+package_update: true
+package_upgrade: true
+
+groups:
+- docker
+
+system_info:
+  default_user:
+    groups: [docker]
+
+packages:
+# docker
+- docker.io
+- unattended-upgrades
+# ado
+- zlib1g
+- libssl1.1
+- libicu60
+- libkrb5-3
+- liblttng-ust-ctl4 
+- liblttng-ust0 
+- liburcu6
+
+runcmd:
+- mkdir /myagent && cd /myagent
+- curl -sOL https://vstsagentpackage.azureedge.net/agent/2.214.1/vsts-agent-linux-x64-2.214.1.tar.gz
+- tar zxvf vsts-agent-linux-x64-2.214.1.tar.gz
+- AGENT_ALLOW_RUNASROOT=1 ./config.sh --url {0} --auth pat --token {1} --unattended --pool {2} --agent {3}
+- AGENT_ALLOW_RUNASROOT=1 ./svc.sh install
+- AGENT_ALLOW_RUNASROOT=1 ./svc.sh start
+- AGENT_ALLOW_RUNASROOT=1 ./svc.sh status
+- chown -R {4} /myagent

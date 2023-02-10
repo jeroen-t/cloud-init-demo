@@ -14,8 +14,22 @@ param location string = 'southcentralus'
 @description('Unique DNS Name for the Public IP used to access the Virtual Machine.')
 param dnsLabelPrefix string = toLower('${vmName}-${uniqueString(resourceGroup().id)}')
 
+@secure()
+param patToken string
+
 var addressPrefix = '10.1.0.0/16'
 var subnetAddressPrefix = '10.1.0.0/24'
+
+// https://learn.microsoft.com/en-us/azure/devops/pipelines/agents/v2-linux?view=azure-devops#unattended-config
+var values = {
+  adoOrganizationUrl: 'https://dev.azure.com/JeroenTrimbach'
+  adoPatToken: patToken
+  adoPoolName: 'selfhosted'
+  adoAgentName: 'ubuntu'
+  adoUser: adminUsername
+}
+
+var cloudInit = loadTextContent('cloud-init-ado-param.yml')
 
 resource virtualNetwork 'Microsoft.Network/virtualNetworks@2022-07-01' = {
   name: 'virtualnetwork-01'
@@ -86,6 +100,7 @@ module virtualMachine 'modules/virtualMachines/main.bicep' = {
     publicIpId: publicIP.id
     networkSecurityGroupId: nsg.id
     authenticationType: 'sshPublicKey'
+    customData: base64(format(cloudInit, values.adoOrganizationUrl, values.adoPatToken, values.adoPoolName, values.adoAgentName, values.adoUser))
   }
 }
 
