@@ -22,6 +22,7 @@ var subnetAddressPrefix = '10.1.0.0/24'
 
 // https://learn.microsoft.com/en-us/azure/devops/pipelines/agents/v2-linux?view=azure-devops#unattended-config
 var values = {
+  adoVersion: '2.217.2'
   adoOrganizationUrl: 'https://dev.azure.com/JeroenTrimbach'
   adoPatToken: patToken
   adoPoolName: 'selfhosted'
@@ -100,7 +101,7 @@ module virtualMachine 'modules/virtualMachines/main.bicep' = {
     publicIpId: publicIP.id
     networkSecurityGroupId: nsg.id
     authenticationType: 'sshPublicKey'
-    customData: base64(format(cloudInit, values.adoOrganizationUrl, values.adoPatToken, values.adoPoolName, values.adoAgentName, values.adoUser))
+    customData: base64(format(cloudInit, values.adoVersion, values.adoOrganizationUrl, values.adoPatToken, values.adoPoolName, values.adoAgentName, values.adoUser))
   }
 }
 

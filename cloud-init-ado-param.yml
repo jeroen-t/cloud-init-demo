@@ -9,14 +9,27 @@ system_info:
   default_user:
     groups: [docker]
 
+apt:
+  sources:
+    docker.list:
+      # source
+      # Creates a file in /etc/apt/sources.list.d/ for the sources list entry
+      # based on the key: "/etc/apt/sources.list.d/curtin-dev-ppa.list"
+      source: "deb [arch=amd64 signed-by=$KEY_FILE] https://download.docker.com/linux/ubuntu focal stable"
+      # keyid
+      # Importing a gpg key for a given key id. Used keyserver defaults to
+      # keyserver.ubuntu.com
+      keyid: 8D81803C0EBFCD88 # GPG key ID published on a key server
+
 packages:
 # docker
-- docker.io
+- docker-ce
+- docker-ce-cli
+- containerd.io
 - unattended-upgrades
 # ado
 - zlib1g
 - libssl1.1
-- libicu60
 - libkrb5-3
 - liblttng-ust-ctl4 
 - liblttng-ust0 
@@ -24,10 +37,10 @@ packages:
 
 runcmd:
 - mkdir /myagent && cd /myagent
-- curl -sOL https://vstsagentpackage.azureedge.net/agent/2.214.1/vsts-agent-linux-x64-2.214.1.tar.gz
-- tar zxvf vsts-agent-linux-x64-2.214.1.tar.gz
-- AGENT_ALLOW_RUNASROOT=1 ./config.sh --url {0} --auth pat --token {1} --unattended --pool {2} --agent {3}
+- curl -sOL https://vstsagentpackage.azureedge.net/agent/{0}/vsts-agent-linux-x64-{0}.tar.gz
+- tar zxvf vsts-agent-linux-x64-{0}.tar.gz
+- AGENT_ALLOW_RUNASROOT=1 ./config.sh --url {1} --auth pat --token {2} --unattended --pool {3} --agent {4} --replace
 - AGENT_ALLOW_RUNASROOT=1 ./svc.sh install
 - AGENT_ALLOW_RUNASROOT=1 ./svc.sh start
 - AGENT_ALLOW_RUNASROOT=1 ./svc.sh status
-- chown -R {4} /myagent
+- chown -R {5} /myagent
